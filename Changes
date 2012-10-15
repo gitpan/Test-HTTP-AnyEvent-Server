@@ -1,0 +1,17 @@
+Changelog for Test-HTTP-AnyEvent-Server
+
+0.003 2012-10-15T19:50:20
+ [Stanislaw Pusep <creaktive@gmail.com>]
+ - minor fixes
+
+ - provided usage examples using curl
+
+ - documented
+
+ - test suite
+
+ - completed split from AnyEvent::Net::Curl::Queued
+
+ - INIT
+
+
