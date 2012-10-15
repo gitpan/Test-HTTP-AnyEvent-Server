@@ -20,7 +20,7 @@ use POSIX;
 
 #$AnyEvent::Log::FILTER->level('debug');
 
-our $VERSION = '0.003'; # VERSION
+our $VERSION = '0.004'; # VERSION
 
 our %pool;
 
@@ -79,17 +79,16 @@ sub BUILD {
                 my $h = AnyEvent::Handle->new(
                     fh          => $wh,
                     on_error    => sub {
-                        #my ($_h, $fatal, $msg) = @_;
-                        my ($_h) = @_;
-                        shutdown $_h->{fh}, 2;
-                        $_h->destroy;
+                        AE::log fatal =>
+                            "couldn't syswrite() to pipe: $!";
                     },
                 );
 
                 $self->set_server(
                     $self->start_server(sub {
                         my (undef, $address, $port) = @_;
-                        $h->push_write(join("\t", $address, $port));
+                        # have to postpone so the address/port gets actually bound
+                        AE::postpone { $h->push_write(join("\t", $address, $port)) };
                     })
                 );
 
@@ -284,7 +283,7 @@ Test::HTTP::AnyEvent::Server - the async counterpart to Test::HTTP::Server
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 SYNOPSIS
 

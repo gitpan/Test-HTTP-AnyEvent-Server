@@ -1,6 +1,11 @@
 Changelog for Test-HTTP-AnyEvent-Server
 
-0.003 2012-10-15T19:50:20
+0.004 2012-10-15T23:05:47
+ [Stanislaw Pusep <creaktive@gmail.com>]
+ - fixed on FreeBSD
+
+
+v0.003 2012-10-15T19:47:55
  [Stanislaw Pusep <creaktive@gmail.com>]
  - minor fixes
 
