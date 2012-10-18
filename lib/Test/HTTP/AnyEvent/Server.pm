@@ -20,7 +20,7 @@ use POSIX;
 
 #$AnyEvent::Log::FILTER->level('debug');
 
-our $VERSION = '0.004'; # VERSION
+our $VERSION = '0.005'; # VERSION
 
 our %pool;
 
@@ -283,7 +283,7 @@ Test::HTTP::AnyEvent::Server - the async counterpart to Test::HTTP::Server
 
 =head1 VERSION
 
-version 0.004
+version 0.005
 
 =head1 SYNOPSIS
 

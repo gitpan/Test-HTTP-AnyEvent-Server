@@ -3,7 +3,7 @@ NAME
     Test::HTTP::Server
 
 VERSION
-    version 0.004
+    version 0.005
 
 SYNOPSIS
         #!/usr/bin/env perl

@@ -1,6 +1,11 @@
 Changelog for Test-HTTP-AnyEvent-Server
 
-0.004 2012-10-15T23:05:47
+0.005 2012-10-18T21:21:38
+ [Stanislaw Pusep <creaktive@gmail.com>]
+ - better /delay/# test
+
+
+v0.004 2012-10-15T23:05:05
  [Stanislaw Pusep <creaktive@gmail.com>]
  - fixed on FreeBSD
 
