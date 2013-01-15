@@ -27,7 +27,6 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "Test::HTTP::AnyEvent::Server",
   "PREREQ_PM" => {
-    "Any::Moose" => 0,
     "AnyEvent" => 0,
     "AnyEvent::Handle" => 0,
     "AnyEvent::Log" => 0,
@@ -36,13 +35,15 @@ my %WriteMakefileArgs = (
     "HTTP::Headers" => 0,
     "HTTP::Request" => 0,
     "HTTP::Response" => 0,
+    "Moo" => 0,
+    "MooX::Types::MooseLike::Base" => 0,
     "POSIX" => 0,
     "feature" => 0,
     "strict" => 0,
     "utf8" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.005",
+  "VERSION" => "0.006",
   "test" => {
     "TESTS" => "t/*.t"
   }

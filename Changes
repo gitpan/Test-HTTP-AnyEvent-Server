@@ -1,6 +1,13 @@
 Changelog for Test-HTTP-AnyEvent-Server
 
-0.005 2012-10-18T21:21:38
+0.006 2013-01-15T18:37:18
+ [Stanislaw Pusep <creaktive@gmail.com>]
+ - s/Any::Moose/Moo/g
+
+ - Dist::Zilla profile update
+
+
+v0.005 2012-10-17T15:23:29
  [Stanislaw Pusep <creaktive@gmail.com>]
  - better /delay/# test
 

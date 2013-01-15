@@ -7,7 +7,6 @@ use strict;
 use utf8;
 use warnings qw(all);
 
-use Any::Moose;
 use AnyEvent;
 use AnyEvent::Handle;
 use AnyEvent::Log;
@@ -16,42 +15,45 @@ use AnyEvent::Util;
 use HTTP::Headers;
 use HTTP::Request;
 use HTTP::Response;
+use Moo;
+use MooX::Types::MooseLike::Base qw(:all);
 use POSIX;
 
 #$AnyEvent::Log::FILTER->level('debug');
 
-our $VERSION = '0.005'; # VERSION
+our $VERSION = '0.006'; # VERSION
 
-our %pool;
-
-
-has address     => (is => 'ro', isa => 'Str', default => '127.0.0.1', writer => 'set_address');
+my %pool;
 
 
-has port        => (is => 'ro', isa => 'Int', writer => 'set_port');
+has address     => (is => 'ro', isa => Str, default => sub { '127.0.0.1' }, writer => 'set_address');
 
 
-has maxconn     => (is => 'ro', isa => 'Int', default => 10);
+has port        => (is => 'ro', isa => Int, writer => 'set_port');
 
 
-has timeout     => (is => 'ro', isa => 'Int', default => 60);
+has maxconn     => (is => 'ro', isa => Int, default => sub { 10 });
 
 
-has disable_proxy => (is => 'ro', isa => 'Bool', default => 1);
+has timeout     => (is => 'ro', isa => Int, default => sub { 60 });
 
 
-has forked      => (is => 'ro', isa => 'Bool', default => 0);
+has disable_proxy => (is => 'ro', isa => Bool, default => sub { 1 });
 
 
-has forked_pid  => (is => 'ro', isa => 'Int', writer => 'set_forked_pid');
+has forked      => (is => 'ro', isa => Bool, default => sub { 0 });
 
 
-has server      => (is => 'ro', isa => 'Ref', writer => 'set_server');
+has forked_pid  => (is => 'ro', isa => Int, writer => 'set_forked_pid');
+
+
+has server      => (is => 'ro', isa => Ref, writer => 'set_server');
 
 
 sub BUILD {
     my ($self) = @_;
 
+    ## no critic (RequireLocalizedPunctuationVars)
     @ENV{qw(no_proxy http_proxy ftp_proxy all_proxy)} = (q(localhost,127.0.0.1), (q()) x 3)
         if $self->disable_proxy;
 
@@ -115,6 +117,8 @@ sub BUILD {
             }
         }
     }
+
+    return;
 }
 
 sub DEMOLISH {
@@ -126,6 +130,8 @@ sub DEMOLISH {
         AE::log info =>
             "killed $pid";
     }
+
+    return;
 }
 
 
@@ -173,17 +179,17 @@ sub start_server {
             });
 
             $h->push_read(regex => qr{(\015?\012){2}}x, sub {
-                my ($h, $data) = @_;
+                my ($_h, $data) = @_;
                 $hdr = $data;
                 AE::log debug => "got headers\n";
                 if ($hdr =~ m{\bContent-length:\s*(\d+)\b}isx) {
                     AE::log debug => "expecting content\n";
-                    $h->push_read(chunk => int($1), sub {
-                        my ($h, $data) = @_;
-                        _reply($h, $req, $hdr, $data);
+                    $_h->push_read(chunk => int($1), sub {
+                        my ($__h, $__data) = @_;
+                        _reply($__h, $req, $hdr, $__data);
                     });
                 } else {
-                    _reply($h, $req, $hdr);
+                    _reply($_h, $req, $hdr);
                 }
             });
         } => $cb
@@ -195,13 +201,18 @@ sub _cleanup {
     #my ($h, $fatal, $msg) = @_;
     my ($h) = @_;
     AE::log debug => "closing connection\n";
-    eval {
-        no warnings;    ## no critic
+    my $r = eval {
+        ## no critic (ProhibitNoWarnings)
+        no warnings;
 
         my $id = fileno($h->{fh});
         delete $pool{$id};
         shutdown $h->{fh}, 2;
+
+        return 1;
     };
+    AE::log warn => "shutdown() aborted\n"
+        if not defined $r or $@;
     $h->destroy;
     return;
 }
@@ -266,9 +277,6 @@ sub _reply {
 }
 
 
-no Any::Moose;
-__PACKAGE__->meta->make_immutable;
-
 1;
 
 __END__
@@ -283,7 +291,7 @@ Test::HTTP::AnyEvent::Server - the async counterpart to Test::HTTP::Server
 
 =head1 VERSION
 
-version 0.005
+version 0.006
 
 =head1 SYNOPSIS
 
@@ -521,7 +529,7 @@ Stanislaw Pusep <stas@sysd.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by Stanislaw Pusep.
+This software is copyright (c) 2013 by Stanislaw Pusep.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
