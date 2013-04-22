@@ -1,6 +1,13 @@
 Changelog for Test-HTTP-AnyEvent-Server
 
-0.006 2013-01-15T18:37:18
+0.007 2013-04-22T17:36:25
+ [Stanislaw Pusep <creaktive@gmail.com>]
+ - Perl v5.17.10 compatibility
+
+ - fixed HTTP protocol version typo in t/01-basic.t
+
+
+v0.006 2013-01-15T18:30:49
  [Stanislaw Pusep <creaktive@gmail.com>]
  - s/Any::Moose/Moo/g
 
