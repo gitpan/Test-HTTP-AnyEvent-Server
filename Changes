@@ -1,6 +1,9 @@
 Changelog for Test-HTTP-AnyEvent-Server
 
-0.008 2014-06-04T16:32:46
+0.009 2014-06-04T17:14:08
+ - Not every "ab" build seems to report "Write errors" (Stanislaw Pusep)
+
+0.008 2014-06-04T16:32:28
  - Cleanup (Stanislaw Pusep)
  - Implemented custom request handler (Stanislaw Pusep)
  - Propagate $self down to _reply() (Stanislaw Pusep)

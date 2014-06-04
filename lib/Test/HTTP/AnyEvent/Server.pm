@@ -24,7 +24,7 @@ no if ($] >= 5.017010), warnings => q(experimental);
 
 #$AnyEvent::Log::FILTER->level('debug');
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 my %pool;
 
@@ -337,7 +337,7 @@ Test::HTTP::AnyEvent::Server - the async counterpart to Test::HTTP::Server
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 SYNOPSIS
 

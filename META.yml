@@ -43,4 +43,4 @@ resources:
   bugtracker: https://github.com/creaktive/Test-HTTP-AnyEvent-Server/issues
   homepage: https://github.com/creaktive/Test-HTTP-AnyEvent-Server
   repository: git://github.com/creaktive/Test-HTTP-AnyEvent-Server.git
-version: '0.008'
+version: '0.009'
