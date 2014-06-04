@@ -1,83 +1,134 @@
 NAME
+
     Test::HTTP::AnyEvent::Server - the async counterpart to
     Test::HTTP::Server
 
 VERSION
-    version 0.007
+
+    version 0.008
 
 SYNOPSIS
+
         #!/usr/bin/env perl
         use common::sense;
-
+    
         use AnyEvent::HTTP;
         use Test::HTTP::AnyEvent::Server;
-
+    
         my $server = Test::HTTP::AnyEvent::Server->new;
         my $cv = AE::cv;
-
+    
         $cv->begin;
         http_request GET => $server->uri . q(echo/head), sub {
             my ($body, $hdr) = @_;
             say $body;
             $cv->end;
         };
-
+    
         $cv->wait;
 
 DESCRIPTION
-    This package provides a simple NON-forking HTTP server which can be used
-    for testing HTTP clients.
+
+    This package provides a simple NON-forking HTTP server which can be
+    used for testing HTTP clients.
 
 ATTRIBUTES
-  address
+
+ address
+
     Address to bind the server. Defaults to 127.0.0.1.
 
-  port
+ port
+
     Port to bind the server. Picks the first available by default.
 
-  maxconn
+ maxconn
+
     Limit the number of accepted connections to this. Default: 10.
 
-  timeout
+ timeout
+
     Timeout connection after this number of seconds. Default: 60.
 
-  disable_proxy
-    Reset the proxy-controlling environment variables
-    ("no_proxy"/"http_proxy"/"ftp_proxy"/"all_proxy"). I guess you don't
-    need a proxy to connect to yourself. Default: true.
+ disable_proxy
 
-  forked
+    Reset the proxy-controlling environment variables
+    (no_proxy/http_proxy/ftp_proxy/all_proxy). I guess you don't need a
+    proxy to connect to yourself. Default: true.
+
+ https
+
+    (experimental) Accept both HTTP and HTTPS connections on the same port.
+    This parameter follows the same rules as the tls_ctx parameter to
+    AnyEvent::Handle. Note: HTTPS server mandatorily need both certificate
+    and key specified!
+
+ custom_handler
+
+    (experimental) Callback for custom request processing.
+
+        my $server = Test::HTTP::AnyEvent::Server->new(
+            custom_handler => sub {
+                # HTTP::Response instance
+                my ($response) = @_;
+                # also carries HTTP::Request!
+                if ($response->request->uri eq '/hello') {
+                    $response->content('world');
+                    return 1;
+                } else {
+                    # 404 - Not Found
+                    return 0;
+                }
+            },
+        );
+
+ forked
+
     (experimental) Sometimes, you just need to test some blocking code.
     Setting this flag to true will start Test::HTTP::AnyEvent::Server in a
     forked process.
 
-  forked_pid
+ forked_pid
+
     (internal) Holds the PID of a child process if "forked" flag was used.
 
-  server
+ server
+
     (internal) Holds the guard object whose lifetime it tied to the TCP
     server.
 
 METHODS
-  uri
-    Return URI of a newly created server (with a trailing "/").
 
-  start_server($prepare_cb)
-    (internal) Wrapper for the "tcp_server" from AnyEvent::Socket.
+ uri
+
+    Return URI of a newly created server (with a trailing /).
+
+ start_server($prepare_cb)
+
+    (internal) Wrapper for the tcp_server from AnyEvent::Socket.
     $prepare_cb is used to get the IP address and port of the local socket
     endpoint and populate respective attributes.
 
-FUNCTIONS
-  _cleanup
-    (internal) Close descriptor and shutdown connection.
+ _start
 
-  _reply
+    (internal) Start processing the request
+
+ _reply
+
     (internal) Issue HTTP reply.
 
+FUNCTIONS
+
+ _cleanup
+
+    (internal) Close descriptor and shutdown connection.
+
 INTERFACE
+
     Mostly borrowed from Test::HTTP::Server.
 
-  GET /echo/head
+ GET /echo/head
+
     Echoes back the issued HTTP request (except the content part):
 
         $ curl -v http://127.0.0.1:44721/echo/head
@@ -101,10 +152,11 @@ INTERFACE
         User-Agent: curl/7.27.0
         Host: 127.0.0.1:44721
         Accept: */*
-
+    
         * Closing connection #0
 
-  GET /echo/body
+ GET /echo/body
+
     Echoes back the content part of an issued HTTP POST request:
 
         $ curl -v -d param1=value1 -d param2=value2 http://127.0.0.1:44721/echo/body
@@ -130,7 +182,8 @@ INTERFACE
         * Closing connection #0
         param1=value1&param2=value2
 
-  GET /repeat/5/PADDING
+ GET /repeat/5/PADDING
+
     Mindlessly repeat the specified pattern:
 
         $ curl -v http://127.0.0.1:44721/repeat/5/PADDING
@@ -153,9 +206,10 @@ INTERFACE
         * Closing connection #0
         PADDINGPADDINGPADDINGPADDINGPADDING
 
-  GET /delay/5
-    Holds the response for a specified number of seconds. Useful to test the
-    timeout routines:
+ GET /delay/5
+
+    Holds the response for a specified number of seconds. Useful to test
+    the timeout routines:
 
         $ curl -v http://127.0.0.1:44721/delay/5 && date
         * About to connect() to 127.0.0.1 port 44721 (#0)
@@ -180,23 +234,25 @@ INTERFACE
 
     P.S. - not present in Test::HTTP::Server.
 
-    P.P.S. - setting the "delay" value below the "timeout" value is quite
+    P.P.S. - setting the delay value below the "timeout" value is quite
     pointless.
 
 TODO
-    *   Implement "cookie"/"index" routes from Test::HTTP::Server;
 
-    *   Implement custom routes;
+      * Implement cookie/index routes from Test::HTTP::Server;
 
-    *   Test edge cases for "forked".
+      * Test edge cases for "forked".
 
 SEE ALSO
-    *   Test::HTTP::Server
+
+      * Test::HTTP::Server
 
 AUTHOR
+
     Stanislaw Pusep <stas@sysd.org>
 
 COPYRIGHT AND LICENSE
+
     This software is copyright (c) 2013 by Stanislaw Pusep.
 
     This is free software; you can redistribute it and/or modify it under

@@ -3,41 +3,44 @@ abstract: 'the async counterpart to Test::HTTP::Server'
 author:
   - 'Stanislaw Pusep <stas@sysd.org>'
 build_requires:
-  AnyEvent::HTTP: 0
-  File::Find: 0
-  File::Temp: 0
-  HTTP::Tiny: 0
-  Scalar::Util: 0
-  Test::More: 0
+  AnyEvent::HTTP: '0'
+  File::Spec: '0'
+  HTTP::Tiny: '0'
+  IO::Handle: '0'
+  IPC::Open3: '0'
+  Scalar::Util: '0'
+  Test::More: '0'
+  perl: '5.010'
 configure_requires:
-  ExtUtils::MakeMaker: 6.30
+  ExtUtils::MakeMaker: '6.30'
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300034, CPAN::Meta::Converter version 2.130880'
+generated_by: 'Dist::Zilla version 5.019, CPAN::Meta::Converter version 2.141520'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
+  version: '1.4'
 name: Test-HTTP-AnyEvent-Server
 requires:
-  AnyEvent: 0
-  AnyEvent::Handle: 0
-  AnyEvent::Log: 0
-  AnyEvent::Socket: 0
-  AnyEvent::Util: 0
-  HTTP::Headers: 0
-  HTTP::Request: 0
-  HTTP::Response: 0
-  Moo: 0
-  MooX::Types::MooseLike::Base: 0
-  POSIX: 0
-  feature: 0
-  if: 0
-  perl: 5.010
-  strict: 0
-  utf8: 0
-  warnings: 0
+  AnyEvent: '0'
+  AnyEvent::Handle: '0'
+  AnyEvent::Log: '0'
+  AnyEvent::Socket: '0'
+  AnyEvent::Util: '0'
+  HTTP::Headers: '0'
+  HTTP::Request: '0'
+  HTTP::Response: '0'
+  HTTP::Status: '0'
+  Moo: '0'
+  MooX::Types::MooseLike::Base: '0'
+  POSIX: '0'
+  feature: '0'
+  if: '0'
+  perl: '5.010'
+  strict: '0'
+  utf8: '0'
+  warnings: '0'
 resources:
   bugtracker: https://github.com/creaktive/Test-HTTP-AnyEvent-Server/issues
   homepage: https://github.com/creaktive/Test-HTTP-AnyEvent-Server
   repository: git://github.com/creaktive/Test-HTTP-AnyEvent-Server.git
-version: 0.007
+version: '0.008'

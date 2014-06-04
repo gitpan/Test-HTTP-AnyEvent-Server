@@ -1,41 +1,31 @@
 Changelog for Test-HTTP-AnyEvent-Server
 
-0.007 2013-04-22T17:36:25
- [Stanislaw Pusep <creaktive@gmail.com>]
- - Perl v5.17.10 compatibility
+0.008 2014-06-04T16:32:46
+ - Cleanup (Stanislaw Pusep)
+ - Implemented custom request handler (Stanislaw Pusep)
+ - Propagate $self down to _reply() (Stanislaw Pusep)
+ - Implemented proxy support (Stanislaw Pusep)
+ - Implemented HTTPS support (Stanislaw Pusep)
 
- - fixed HTTP protocol version typo in t/01-basic.t
+0.007 2013-04-22T17:34:28
+ - Perl v5.17.10 compatibility (Stanislaw Pusep)
+ - fixed HTTP protocol version typo in t/01-basic.t (Stanislaw Pusep)
 
+0.006 2013-01-15T18:30:49
+ - s/Any::Moose/Moo/g (Stanislaw Pusep)
+ - Dist::Zilla profile update (Stanislaw Pusep)
 
-v0.006 2013-01-15T18:30:49
- [Stanislaw Pusep <creaktive@gmail.com>]
- - s/Any::Moose/Moo/g
+0.005 2012-10-17T15:23:29
+ - better /delay/# test (Stanislaw Pusep)
 
- - Dist::Zilla profile update
+0.004 2012-10-15T23:05:05
+ - fixed on FreeBSD (Stanislaw Pusep)
 
-
-v0.005 2012-10-17T15:23:29
- [Stanislaw Pusep <creaktive@gmail.com>]
- - better /delay/# test
-
-
-v0.004 2012-10-15T23:05:05
- [Stanislaw Pusep <creaktive@gmail.com>]
- - fixed on FreeBSD
-
-
-v0.003 2012-10-15T19:47:55
- [Stanislaw Pusep <creaktive@gmail.com>]
- - minor fixes
-
- - provided usage examples using curl
-
- - documented
-
- - test suite
-
- - completed split from AnyEvent::Net::Curl::Queued
-
- - INIT
-
+0.003 2012-10-15T19:47:55
+ - minor fixes (Stanislaw Pusep)
+ - provided usage examples using curl (Stanislaw Pusep)
+ - documented (Stanislaw Pusep)
+ - test suite (Stanislaw Pusep)
+ - completed split from AnyEvent::Net::Curl::Queued (Stanislaw Pusep)
+ - INIT (Stanislaw Pusep)
 

@@ -15,6 +15,7 @@ use AnyEvent::Util;
 use HTTP::Headers;
 use HTTP::Request;
 use HTTP::Response;
+use HTTP::Status;
 use Moo;
 use MooX::Types::MooseLike::Base qw(:all);
 use POSIX;
@@ -23,7 +24,7 @@ no if ($] >= 5.017010), warnings => q(experimental);
 
 #$AnyEvent::Log::FILTER->level('debug');
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 my %pool;
 
@@ -43,6 +44,12 @@ has timeout     => (is => 'ro', isa => Int, default => sub { 60 });
 has disable_proxy => (is => 'ro', isa => Bool, default => sub { 1 });
 
 
+has https       => (is => 'ro', isa => HashRef);
+
+
+has custom_handler => (is => 'ro', isa => CodeRef);
+
+
 has forked      => (is => 'ro', isa => Bool, default => sub { 0 });
 
 
@@ -56,7 +63,7 @@ sub BUILD {
     my ($self) = @_;
 
     ## no critic (RequireLocalizedPunctuationVars)
-    @ENV{qw(no_proxy http_proxy ftp_proxy all_proxy)} = (q(localhost,127.0.0.1), (q()) x 3)
+    @ENV{qw(no_proxy http_proxy https_proxy ftp_proxy all_proxy)} = (q(localhost,127.0.0.1), (q()) x 4)
         if $self->disable_proxy;
 
     unless ($self->forked) {
@@ -66,7 +73,7 @@ sub BUILD {
                 $self->set_address($address);
                 $self->set_port($port);
                 AE::log info =>
-                    "bound to http://$address:$port/";
+                    'bound to ' . $self->uri;
             })
         );
     } else {
@@ -115,7 +122,7 @@ sub BUILD {
                 $self->set_port($port);
                 $self->set_forked_pid($pid);
                 AE::log info =>
-                    "forked as $pid and bound to http://$address:$port/";
+                    "forked as $pid and bound to " . $self->uri;
             }
         }
     }
@@ -139,7 +146,12 @@ sub DEMOLISH {
 
 sub uri {
     my ($self) = @_;
-    return sprintf('http://%s:%d/', $self->address, $self->port);
+    return sprintf(
+        '%s://%s:%d/',
+        ($self->https ? 'https' : 'http'),
+        $self->address,
+        $self->port,
+    );
 }
 
 
@@ -164,43 +176,42 @@ sub start_server {
                 on_eof      => \&_cleanup,
                 on_error    => \&_cleanup,
                 timeout     => $self->timeout,
+                ($self->https ? (tls_ctx => $self->https) : ()),
             );
+
+            $h->push_read(tls_autostart => 'accept') if $self->https;
 
             $pool{fileno($fh)} = $h;
             AE::log debug =>
                 sprintf "%d connection(s) in pool\n", scalar keys %pool;
 
-            my ($req, $hdr);
-
-            $h->push_read(regex => qr{\015?\012}x, sub {
-                #my ($h, $data) = @_;
-                my (undef, $data) = @_;
-                $data =~ s/\s+$//sx;
-                $req = $data;
-                AE::log debug => "request: [$req]\n";
-            });
-
-            $h->push_read(regex => qr{(\015?\012){2}}x, sub {
-                my ($_h, $data) = @_;
-                $hdr = $data;
-                AE::log debug => "got headers\n";
-                if ($hdr =~ m{\bContent-length:\s*(\d+)\b}isx) {
-                    AE::log debug => "expecting content\n";
-                    $_h->push_read(chunk => int($1), sub {
-                        my ($__h, $__data) = @_;
-                        _reply($__h, $req, $hdr, $__data);
-                    });
-                } else {
-                    _reply($_h, $req, $hdr);
-                }
-            });
+            $self->_start($h);
         } => $cb
     );
 }
 
 
+sub _start {
+    my ($self, $my_handle) = @_;
+    return $my_handle->push_read(regex => qr{(\015?\012){2}}x, sub {
+        my ($h, $data) = @_;
+        my ($req, $hdr) = split m{\015?\012}x, $data, 2;
+        $req =~ s/\s+$//sx;
+        AE::log debug => "request: [$req]\n";
+        if ($hdr =~ m{\bContent-length:\s*(\d+)\b}isx) {
+            AE::log debug => "expecting content\n";
+            $h->push_read(chunk => int($1), sub {
+                my ($_h, $_data) = @_;
+                $self->_reply($_h, $req, $hdr, $_data);
+            });
+        } else {
+            $self->_reply($h, $req, $hdr);
+        }
+    });
+}
+
+
 sub _cleanup {
-    #my ($h, $fatal, $msg) = @_;
     my ($h) = @_;
     AE::log debug => "closing connection\n";
     my $r = eval {
@@ -221,15 +232,15 @@ sub _cleanup {
 
 
 sub _reply {
-    my ($h, $req, $hdr, $content) = @_;
+    my ($self, $h, $req, $hdr, $content) = @_;
     state $timer = {};
 
     my $res = HTTP::Response->new(
-        200 => 'OK',
+        &HTTP::Status::RC_OK ,=> undef,
         HTTP::Headers->new(
             Connection      => 'close',
             Content_Type    => 'text/plain',
-            Server          => __PACKAGE__ . "/$Test::HTTP::AnyEvent::Server::VERSION AnyEvent/$AE::VERSION Perl/$] ($^O)",
+            Server          => __PACKAGE__ . "/@{[ $Test::HTTP::AnyEvent::Server::VERSION // 0 ]} AnyEvent/$AE::VERSION Perl/$] ($^O)",
         )
     );
     $res->date(time);
@@ -238,6 +249,8 @@ sub _reply {
     if ($req =~ m{^(GET|POST)\s+(.+)\s+(HTTP/1\.[01])$}ix) {
         my ($method, $uri, $protocol) = ($1, $2, $3);
         AE::log debug => "sending response to $method ($protocol)\n";
+        AE::log debug => "simulating connection to $1\n"
+            if $uri =~ s{^(https?://[^/]+)}{}ix;
         for ($uri) {
             when (m{^/repeat/(\d+)/(.+)}x) {
                 $res->content($2 x $1);
@@ -245,7 +258,7 @@ sub _reply {
                 $res->content(
                     join(
                         "\015\012",
-                        $req,
+                        qq($method $uri $protocol),
                         $hdr,
                     )
                 );
@@ -261,15 +274,46 @@ sub _reply {
                 };
                 return;
             } default {
-                $res->code(404);
-                $res->message('Not Found');
-                $res->content('Not Found');
+                my $found;
+                if ($self->custom_handler) {
+                    $res->request(HTTP::Request->new(
+                        $method,
+                        $uri,
+                        [
+                            map {
+                                m{^\s*([^:\s]+)\s*:\s*(.*)$}sx
+                            } split m{\015?\012}x, $hdr
+                        ],
+                        $content,
+                    ));
+                    $found = eval { $self->custom_handler->($res) };
+                    if ($@) {
+                        AE::log error => "custom_handler died: $@";
+                        $res->code(&HTTP::Status::RC_INTERNAL_SERVER_ERROR);
+                        $res->content($@);
+                        $found = 1;
+                    }
+                }
+                unless ($found) {
+                    $res->code(&HTTP::Status::RC_NOT_FOUND);
+                    $res->content('Not Found');
+                }
             }
         }
+    } elsif ($req =~ m{^CONNECT\s+([\w\.\-]+):(\d+)\s+(HTTP/1\.[01])$}ix) {
+        my ($peer_host, $peer_port, $protocol) = ($1, $2, $3);
+        AE::log debug => "simulating connection to $peer_host:$peer_port ($protocol)\n";
+        $res->message('Connection established');
+        $h->push_write($res->as_string("\015\012"));
+        if ($self->https) {
+            AE::log debug => 'attempting to use TLS';
+            $h->push_read(tls_autostart => 'accept');
+        }
+        $self->_start($h);
+        return;
     } else {
         AE::log error => "bad request\n";
-        $res->code(400);
-        $res->message('Bad Request');
+        $res->code(&HTTP::Status::RC_BAD_REQUEST);
         $res->content('Bad Request');
     }
 
@@ -285,7 +329,7 @@ __END__
 
 =pod
 
-=encoding utf8
+=encoding UTF-8
 
 =head1 NAME
 
@@ -293,7 +337,7 @@ Test::HTTP::AnyEvent::Server - the async counterpart to Test::HTTP::Server
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 SYNOPSIS
 
@@ -347,6 +391,31 @@ Reset the proxy-controlling environment variables (C<no_proxy>/C<http_proxy>/C<f
 I guess you don't need a proxy to connect to yourself.
 Default: true.
 
+=head2 https
+
+B<(experimental)> Accept both HTTP and HTTPS connections on the same port.
+This parameter follows the same rules as the C<tls_ctx> parameter to L<AnyEvent::Handle>.
+Note: HTTPS server mandatorily need both certificate and key specified!
+
+=head2 custom_handler
+
+B<(experimental)> Callback for custom request processing.
+
+    my $server = Test::HTTP::AnyEvent::Server->new(
+        custom_handler => sub {
+            # HTTP::Response instance
+            my ($response) = @_;
+            # also carries HTTP::Request!
+            if ($response->request->uri eq '/hello') {
+                $response->content('world');
+                return 1;
+            } else {
+                # 404 - Not Found
+                return 0;
+            }
+        },
+    );
+
 =head2 forked
 
 B<(experimental)> Sometimes, you just need to test some blocking code.
@@ -371,15 +440,19 @@ Return URI of a newly created server (with a trailing C</>).
 B<(internal)> Wrapper for the C<tcp_server> from L<AnyEvent::Socket>.
 C<$prepare_cb> is used to get the IP address and port of the local socket endpoint and populate respective attributes.
 
+=head2 _start
+
+B<(internal)> Start processing the request
+
+=head2 _reply
+
+B<(internal)> Issue HTTP reply.
+
 =head1 FUNCTIONS
 
 =head2 _cleanup
 
 B<(internal)> Close descriptor and shutdown connection.
-
-=head2 _reply
-
-B<(internal)> Issue HTTP reply.
 
 =head1 INTERFACE
 
@@ -504,10 +577,6 @@ DEMOLISH
 =item *
 
 Implement C<cookie>/C<index> routes from L<Test::HTTP::Server>;
-
-=item *
-
-Implement custom routes;
 
 =item *
 
