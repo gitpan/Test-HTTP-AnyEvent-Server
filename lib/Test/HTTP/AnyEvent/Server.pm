@@ -24,7 +24,7 @@ no if ($] >= 5.017010), warnings => q(experimental);
 
 #$AnyEvent::Log::FILTER->level('debug');
 
-our $VERSION = '0.009'; # VERSION
+our $VERSION = '0.010'; # VERSION
 
 my %pool;
 
@@ -337,7 +337,7 @@ Test::HTTP::AnyEvent::Server - the async counterpart to Test::HTTP::Server
 
 =head1 VERSION
 
-version 0.009
+version 0.010
 
 =head1 SYNOPSIS
 
@@ -393,7 +393,7 @@ Default: true.
 
 =head2 https
 
-B<(experimental)> Accept both HTTP and HTTPS connections on the same port.
+B<(experimental)> Accept both HTTP and HTTPS connections on the same port (depends on L<Net::SSLeay>).
 This parameter follows the same rules as the C<tls_ctx> parameter to L<AnyEvent::Handle>.
 Note: HTTPS server mandatorily need both certificate and key specified!
 
@@ -600,7 +600,7 @@ Stanislaw Pusep <stas@sysd.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Stanislaw Pusep.
+This software is copyright (c) 2014 by Stanislaw Pusep.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

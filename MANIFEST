@@ -6,6 +6,7 @@ MANIFEST.SKIP
 META.yml
 Makefile.PL
 README
+SIGNATURE
 dist.ini
 eg/standalone.pl
 lib/Test/HTTP/AnyEvent/Server.pm
