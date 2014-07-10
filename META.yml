@@ -13,6 +13,8 @@ meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: '1.4'
 name: Test-HTTP-AnyEvent-Server
+recommends:
+  Net::SSLeay: '0'
 requires:
   AnyEvent: '7.0'
   AnyEvent::Handle: '0'
@@ -30,4 +32,6 @@ resources:
   bugtracker: https://github.com/creaktive/Test-HTTP-AnyEvent-Server/issues
   homepage: https://github.com/creaktive/Test-HTTP-AnyEvent-Server
   repository: git://github.com/creaktive/Test-HTTP-AnyEvent-Server.git
-version: '0.010'
+version: '0.011'
+x_contributors:
+  - 'Сергей Романов <sromanov-dev@yandex.ru>'

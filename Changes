@@ -1,6 +1,13 @@
 Changelog for Test-HTTP-AnyEvent-Server
 
-0.010 2014-06-06T10:03:16
+0.011 2014-07-10T12:43:30
+ - Delay test improved (Stanislaw Pusep)
+ - Added "Contributors" section to POD (Stanislaw Pusep)
+ - Dist::Zilla maintenance (Stanislaw Pusep)
+ - drop PWP::Encoding dependency (Сергей Романов)
+ - Added Net::SSLeay as a recommended dependency (Stanislaw Pusep)
+
+0.010 2014-06-06T10:02:57
  - More verbose t/06-custom.t (Stanislaw Pusep)
  - HTTPS stuff depends on Net::SSLeay; made it optional (Stanislaw Pusep)
  - In tests, force AnyEvent::HTTP to ignore proxy setting (Stanislaw Pusep)
