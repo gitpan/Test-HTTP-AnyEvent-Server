@@ -1,6 +1,9 @@
 Changelog for Test-HTTP-AnyEvent-Server
 
-0.011 2014-07-10T12:43:30
+0.012 2014-07-21T08:35:50
+ - Failing test fixes (Stanislaw Pusep)
+
+0.011 2014-07-10T12:41:54
  - Delay test improved (Stanislaw Pusep)
  - Added "Contributors" section to POD (Stanislaw Pusep)
  - Dist::Zilla maintenance (Stanislaw Pusep)
