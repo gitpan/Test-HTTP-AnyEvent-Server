@@ -32,6 +32,6 @@ resources:
   bugtracker: https://github.com/creaktive/Test-HTTP-AnyEvent-Server/issues
   homepage: https://github.com/creaktive/Test-HTTP-AnyEvent-Server
   repository: git://github.com/creaktive/Test-HTTP-AnyEvent-Server.git
-version: '0.012'
+version: '0.013'
 x_contributors:
   - 'Сергей Романов <sromanov-dev@yandex.ru>'

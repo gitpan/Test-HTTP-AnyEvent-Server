@@ -1,6 +1,10 @@
 Changelog for Test-HTTP-AnyEvent-Server
 
-0.012 2014-07-21T08:35:50
+0.013 2014-07-22T08:33:43
+ - Version bump (Stanislaw Pusep)
+ - ooops (Stanislaw Pusep)
+
+0.012 2014-07-21T08:35:25
  - Failing test fixes (Stanislaw Pusep)
 
 0.011 2014-07-10T12:41:54
